@@ -8,6 +8,7 @@ import {
   TrackDto,
   ArtistDto,
   TrackWithContributorsDto,
+  AlbumDto,
 } from './dtos/deezer.dto';
 import { logger } from 'firebase-functions';
 
@@ -119,6 +120,37 @@ export class DeezerService {
       logger.error(error.message);
 
       throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  /**
+   * The function `getArtistAlbums` is an asynchronous function that retrieves albums by artist ID from
+   * the Deezer API and returns an array of `AlbumDto` objects.
+   * @param {number} id - The `id` parameter is a number that represents the unique identifier of an
+   * artist. It is used to fetch the albums associated with that artist from the Deezzer API.
+   * @returns a Promise that resolves to an array of AlbumDto objects.
+   */
+  async getArtistAlbums(id: number): Promise<AlbumDto[]> {
+    try {
+      const response = await axios.get(
+        `${process.env.DEEZER_API}/artist/${id}/albums`,
+        {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.data) {
+        const results = response.data.data.map((result) => {
+          return new AlbumDto(result);
+        });
+
+        return results;
+      }
+    } catch (error: any) {
+      logger.error(error.message);
     }
   }
 }

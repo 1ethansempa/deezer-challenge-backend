@@ -45,7 +45,7 @@ export class ArtistDto {
   }
 }
 
-class Album {
+export class AlbumDto {
   @IsNumber()
   id: number;
 
@@ -84,6 +84,10 @@ class Album {
   @IsNotEmpty()
   @Exclude()
   type: string;
+
+  constructor(partial: Partial<AlbumDto>) {
+    Object.assign(this, partial);
+  }
 }
 
 export class TrackDto {
@@ -140,8 +144,8 @@ export class TrackDto {
   @Type(() => ArtistDto)
   artist: ArtistDto;
 
-  @Type(() => Album)
-  album: Album;
+  @Type(() => AlbumDto)
+  album: AlbumDto;
 
   @IsString()
   type: string;
