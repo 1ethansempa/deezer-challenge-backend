@@ -4,7 +4,12 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import axios from 'axios';
-import { TrackDto } from './dtos/deezer.dto';
+import {
+  TrackDto,
+  ArtistDto,
+  TrackWithContributorsDto,
+} from './dtos/deezer.dto';
+import { logger } from 'firebase-functions';
 
 @Injectable()
 export class DeezerService {
@@ -17,25 +22,101 @@ export class DeezerService {
    */
   async getResultsByQuery(query: string): Promise<TrackDto[]> {
     try {
-      console.log(`${process.env.DEEZER_API}/search?q=${query}`);
-
       const response = await axios.get(
-        `${process.env.DEEZER_API}/search?q=${query}`
+        `${process.env.DEEZER_API}/search?q=${query}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }
       );
 
       if (response.status === 200) {
-        console.log(response.data);
-
         const results = response.data.data.map((result: any) => {
           return new TrackDto(result);
         });
 
+        if (results.length === 0)
+          throw new NotFoundException('No Results Found');
+
         return results;
       }
 
-      throw new NotFoundException('Error fetching results');
+      throw new InternalServerErrorException(
+        'Something went wrong at the server'
+      );
     } catch (error: any) {
-      console.error(error.message);
+      logger.error(error.message);
+
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  /**
+   * The function `getArtist` makes an asynchronous HTTP GET request to the Deezzer API to retrieve
+   * information about an artist, and returns a promise that resolves to an `ArtistDto` object.
+   * @param {number} id - The `id` parameter is a number that represents the unique identifier of an
+   * artist. It is used to fetch the details of the artist from the Deezzer API.
+   * @returns The `getArtist` function returns a Promise that resolves to an `ArtistDto` object.
+   */
+  async getArtist(id: number): Promise<ArtistDto> {
+    try {
+      const response = await axios.get(
+        `${process.env.DEEZER_API}/artist/${id}`,
+        {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.data) {
+        const result = response.data;
+
+        return new ArtistDto(result);
+      }
+
+      throw new InternalServerErrorException(
+        'Something went wrong at the server'
+      );
+    } catch (error: any) {
+      logger.error(error.message);
+
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  /**
+   * The function `getArtistTopTracks` retrieves the top tracks of an artist from the Deezer API and
+   * returns them as an array of `TrackWithContributorsDto` objects.
+   * @param {number} id - The `id` parameter is a number that represents the unique identifier of an
+   * artist. It is used to fetch the top tracks of the artist from the Deezers API.
+   * @returns The function `getArtistTopTracks` returns a promise that resolves to an array of
+   * `TrackWithContributorsDto` objects.
+   */
+  async getArtistTopTracks(id: number): Promise<TrackWithContributorsDto[]> {
+    try {
+      const response = await axios.get(
+        `${process.env.DEEZER_API}/artist/${id}/top?limit=5`,
+        {
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.data) {
+        const results = response.data.data.map((result) => {
+          return new TrackWithContributorsDto(result);
+        });
+
+        return results;
+      }
+    } catch (error: any) {
+      logger.error(error.message);
 
       throw new InternalServerErrorException(error.message);
     }
