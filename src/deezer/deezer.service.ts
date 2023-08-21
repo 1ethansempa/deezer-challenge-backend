@@ -6,9 +6,9 @@ import {
 import axios from 'axios';
 import {
   TrackDto,
-  ArtistDto,
   TrackWithContributorsDto,
-  AlbumDto,
+  ExtendedArtistDto,
+  ExtendedAlbumDto,
 } from './dtos/deezer.dto';
 import { logger } from 'firebase-functions';
 
@@ -55,13 +55,14 @@ export class DeezerService {
   }
 
   /**
-   * The function `getArtist` makes an asynchronous HTTP GET request to the Deezzer API to retrieve
-   * information about an artist, and returns a promise that resolves to an `ArtistDto` object.
+   * The function `getArtist` makes an API call to retrieve information about an artist and returns an
+   * instance of the `ExtendedArtistDto` class.
    * @param {number} id - The `id` parameter is a number that represents the unique identifier of an
    * artist. It is used to fetch the details of the artist from the Deezzer API.
-   * @returns The `getArtist` function returns a Promise that resolves to an `ArtistDto` object.
+   * @returns The function `getArtist` returns a Promise that resolves to an instance of the
+   * `ExtendedArtistDto` class.
    */
-  async getArtist(id: number): Promise<ArtistDto> {
+  async getArtist(id: number): Promise<ExtendedArtistDto> {
     try {
       const response = await axios.get(
         `${process.env.DEEZER_API}/artist/${id}`,
@@ -76,11 +77,11 @@ export class DeezerService {
       if (response.data) {
         const result = response.data;
 
-        return new ArtistDto(result);
+        return new ExtendedArtistDto(result);
       }
 
       throw new InternalServerErrorException(
-        'Something went wrong at the server'
+        'Something went wrong when fetching this'
       );
     } catch (error: any) {
       logger.error(error.message);
@@ -124,13 +125,13 @@ export class DeezerService {
   }
 
   /**
-   * The function `getArtistAlbums` is an asynchronous function that retrieves albums by artist ID from
-   * the Deezer API and returns an array of `AlbumDto` objects.
-   * @param {number} id - The `id` parameter is a number that represents the unique identifier of an
-   * artist. It is used to fetch the albums associated with that artist from the Deezzer API.
-   * @returns a Promise that resolves to an array of AlbumDto objects.
+   * The function `getArtistAlbums` makes an API call to retrieve albums by a given artist ID and
+   * returns an array of `ExtendedAlbumDto` objects.
+   * @param {number} id - The `id` parameter is the unique identifier of an artist. It is used to fetch
+   * the albums of the artist with the specified ID.
+   * @returns a Promise that resolves to an array of ExtendedAlbumDto objects.
    */
-  async getArtistAlbums(id: number): Promise<AlbumDto[]> {
+  async getArtistAlbums(id: number): Promise<ExtendedAlbumDto[]> {
     try {
       const response = await axios.get(
         `${process.env.DEEZER_API}/artist/${id}/albums`,
@@ -144,7 +145,7 @@ export class DeezerService {
 
       if (response.data) {
         const results = response.data.data.map((result) => {
-          return new AlbumDto(result);
+          return new ExtendedAlbumDto(result);
         });
 
         return results;

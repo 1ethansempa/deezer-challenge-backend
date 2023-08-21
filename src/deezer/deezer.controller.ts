@@ -1,8 +1,8 @@
 import { Controller, Get, Query, Param, ParseIntPipe } from '@nestjs/common';
 import { DeezerService } from './deezer.service';
 import {
-  AlbumDto,
-  ArtistDto,
+  ExtendedAlbumDto,
+  ExtendedArtistDto,
   TrackDto,
   TrackWithContributorsDto,
 } from './dtos/deezer.dto';
@@ -21,7 +21,7 @@ export class DeezerController {
   @Get('/artist/:id')
   async getArtist(
     @Param('id', new ParseIntPipe()) id: number
-  ): Promise<ArtistDto> {
+  ): Promise<ExtendedArtistDto> {
     return await this.deezerService.getArtist(id);
   }
 
@@ -35,7 +35,7 @@ export class DeezerController {
   @Get('/artist/:id/albums')
   async getArtistAlbums(
     @Param('id', new ParseIntPipe()) id: number
-  ): Promise<AlbumDto[]> {
+  ): Promise<ExtendedAlbumDto[]> {
     return await this.deezerService.getArtistAlbums(id);
   }
 }

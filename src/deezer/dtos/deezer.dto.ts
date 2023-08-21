@@ -34,14 +34,32 @@ export class ArtistDto {
 
   @IsString()
   @IsNotEmpty()
+  @Exclude()
   tracklist: string;
 
   @IsString()
   @IsNotEmpty()
+  @Exclude()
   type: string;
 
   constructor(partial: Partial<ArtistDto>) {
     Object.assign(this, partial);
+  }
+}
+
+export class ExtendedArtistDto extends ArtistDto {
+  @IsString()
+  @Exclude()
+  share: string;
+
+  nb_album: string;
+
+  @IsBoolean()
+  @Exclude()
+  radio: boolean;
+
+  constructor(partial: Partial<ExtendedArtistDto>) {
+    super(partial);
   }
 }
 
@@ -64,7 +82,6 @@ export class AlbumDto {
 
   @IsString()
   @IsNotEmpty()
-  @Exclude()
   cover_medium: string;
 
   @IsString()
@@ -78,6 +95,7 @@ export class AlbumDto {
 
   @IsString()
   @IsNotEmpty()
+  @Exclude()
   tracklist: string;
 
   @IsString()
@@ -85,9 +103,32 @@ export class AlbumDto {
   @Exclude()
   type: string;
 
+  @IsString()
+  @IsNotEmpty()
+  @Exclude()
+  md5_image: string;
+
   constructor(partial: Partial<AlbumDto>) {
     Object.assign(this, partial);
   }
+}
+
+export class ExtendedAlbumDto extends AlbumDto {
+  @IsString()
+  @Exclude()
+  genre_id: number;
+
+  @IsNumber()
+  fans: number;
+
+  @IsString()
+  release_date: string;
+
+  @IsString()
+  record_type: string;
+
+  @IsBoolean()
+  explicit_lyrics: boolean;
 }
 
 export class TrackDto {
@@ -117,6 +158,7 @@ export class TrackDto {
   @IsNumber()
   duration: number;
 
+  @Exclude()
   @IsNumber()
   rank: number;
 
@@ -147,6 +189,7 @@ export class TrackDto {
   @Type(() => AlbumDto)
   album: AlbumDto;
 
+  @Exclude()
   @IsString()
   type: string;
 
@@ -160,9 +203,11 @@ class Contributor {
   id: number;
 
   @IsString()
+  @Exclude()
   link: string;
 
   @IsString()
+  @Exclude()
   share: string;
 
   @IsString()
@@ -177,7 +222,6 @@ class Contributor {
   picture_medium: string;
 
   @IsString()
-  @Exclude()
   picture_big: string;
 
   @IsString()
@@ -189,6 +233,7 @@ class Contributor {
   radio: boolean;
 
   @IsString()
+  @Exclude()
   tracklist: string;
 
   @IsString()
